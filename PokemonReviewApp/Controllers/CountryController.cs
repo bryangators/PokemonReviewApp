@@ -6,6 +6,8 @@ using PokemonReviewApp.Models;
 
 namespace PokemonReviewApp.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class CountryController : Controller
     {
         private readonly ICountryRepository _countryRepository;
@@ -63,6 +65,5 @@ namespace PokemonReviewApp.Controllers
 
             return Ok(country);
         }
-
     }
 }
