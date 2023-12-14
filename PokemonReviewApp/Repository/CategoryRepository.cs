@@ -9,6 +9,10 @@ namespace PokemonReviewApp.Repository
     { 
         private readonly DataContext _context;
 
+        public CategoryRepository(DataContext context)
+        {
+            _context = context;
+        }
 
         public bool CategoryExists(int id)
         {
@@ -27,7 +31,7 @@ namespace PokemonReviewApp.Repository
 
         public ICollection<Pokemon>GetPokemomByCategory(int categoryId)
         {
-            return _context.PokemonCategories.Where(pc => pc.CategoryId == categoryId).Select(c => c.Pokemon).ToList();
+            return _context.PokemonCategories.Where(c => c.CategoryId == categoryId).Select(c => c.Pokemon).ToList();
         }
     }
 }
