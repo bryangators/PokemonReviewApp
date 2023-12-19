@@ -9,12 +9,18 @@ namespace PokemonReviewApp.Repository
         private readonly DataContext _context;
 
 
-
         public ReviewRepository(DataContext context)
         {
             _context = context;
         }
 
+
+        public bool CreateReview(Review review)
+        {
+            _context.Reviews.Add(review);
+
+            return Save();
+        }
 
 
         public Review GetReview(int reviewId)
@@ -38,6 +44,19 @@ namespace PokemonReviewApp.Repository
         public bool ReviewExists(int reviewId)
         {
             return _context.Reviews.Any(r => r.Id == reviewId);
+        }
+
+
+        public bool ReviewTitleExists(string title)
+        {
+            return _context.Reviews.Any(r => r.Title.Trim().ToUpper() == title.Trim().ToUpper());
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+
+            return saved > 0 ? true : false;
         }
     }
 }

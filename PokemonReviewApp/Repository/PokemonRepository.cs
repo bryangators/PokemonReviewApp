@@ -76,6 +76,11 @@ namespace PokemonReviewApp.Repository
             return _context.Pokemon.Any(p => p.Id == id);
         }
 
+        public bool PokemonNameExists(string name)
+        {
+            return _context.Pokemon.Where(c => c.Name.Trim().ToUpper() == name.Trim().ToUpper()).Any();
+        }
+
         public bool Save()
         {
             var saved = _context.SaveChanges();
