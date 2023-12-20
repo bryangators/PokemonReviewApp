@@ -9,12 +9,11 @@ namespace PokemonReviewApp.Repository
         private readonly DataContext _context;
 
 
-
-
-        public PokemonRepository(DataContext context) 
+        public PokemonRepository(DataContext context)
         {
             _context = context;
         }
+
 
         public bool CreatePokemon(int ownerId, int categoryId, Pokemon pokemon)
         {
@@ -38,6 +37,13 @@ namespace PokemonReviewApp.Repository
             _context.Add(pokemonCategory);
 
             _context.Add(pokemon);
+
+            return Save();
+        }
+
+        public bool DeletePokemon(Pokemon pokemon)
+        {
+            _context.Remove(pokemon);
 
             return Save();
         }
@@ -76,16 +82,26 @@ namespace PokemonReviewApp.Repository
             return _context.Pokemon.Any(p => p.Id == id);
         }
 
+
         public bool PokemonNameExists(string name)
         {
             return _context.Pokemon.Where(c => c.Name.Trim().ToUpper() == name.Trim().ToUpper()).Any();
         }
+
 
         public bool Save()
         {
             var saved = _context.SaveChanges();
 
             return saved > 0 ? true : false;
+        }
+
+
+        public bool UpdatePokemon(Pokemon pokemon)
+        {
+            _context.Update(pokemon);
+
+            return Save();
         }
     }
 }

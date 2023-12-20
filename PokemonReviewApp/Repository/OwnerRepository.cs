@@ -10,7 +10,6 @@ namespace PokemonReviewApp.Repository
         private readonly DataContext _context;
 
 
-
         public OwnerRepository(DataContext context)
         {
             _context = context;
@@ -20,6 +19,14 @@ namespace PokemonReviewApp.Repository
         public bool CreateOwner(Owner owner)
         {
             _context.Add(owner);
+
+            return Save();
+        }
+
+
+        public bool DeleteOwner(Owner owner)
+        {
+            _context.Remove(owner);
 
             return Save();
         }
@@ -67,6 +74,14 @@ namespace PokemonReviewApp.Repository
             var saved = _context.SaveChanges();
 
             return saved > 0 ? true : false;
+        }
+
+
+        public bool UpdateOwner(Owner owner)
+        {
+            _context.Update(owner);
+
+            return Save();
         }
     }
 }

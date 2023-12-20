@@ -100,5 +100,62 @@ namespace PokemonReviewApp.Controllers
 
             return Ok("Successfully Created");
         }
+
+
+        [HttpPut("{reviewerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCountry(int reviewerId, [FromBody] ReviewerDto reviewerUpdate)
+        {
+            if (reviewerUpdate == null)
+                return BadRequest(ModelState);
+
+            //not a good practice just following example tutorial
+            if (reviewerId != reviewerUpdate.Id)
+                return BadRequest(ModelState);
+
+            if (!_reviewerRepository.ReviewerExists(reviewerId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var reviewerMap = _mapper.Map<Reviewer>(reviewerUpdate);
+
+            if (!_reviewerRepository.UpdateReviewer(reviewerMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
+
+        [HttpDelete("{reviewerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteReviewer(int reviewerId)
+        {
+            if (!_reviewerRepository.ReviewerExists(reviewerId))
+                return NotFound();
+
+            var ownerToDelete = _reviewerRepository.GetReviewer(reviewerId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_reviewerRepository.DeleteReviewer(ownerToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }

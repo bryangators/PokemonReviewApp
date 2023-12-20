@@ -7,22 +7,25 @@ using PokemonReviewApp.Repository;
 
 namespace PokemonReviewApp.Controllers
 {
-        [Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ReviewController : Controller
     {
         private readonly IReviewRepository _reviewRepository;
-        private readonly IReviewerRepository _reviewersRepository;
+        private readonly IReviewerRepository _reviewerRepository;
         private readonly IPokemonRepository _pokemonRepository;
         private readonly IMapper _mapper;
 
 
 
-        public ReviewController(IReviewRepository reviewRepository, IPokemonRepository pokemonRepository, IReviewerRepository reviewersRepository, IMapper mapper)
+        public ReviewController(IReviewRepository reviewRepository, 
+                                IPokemonRepository pokemonRepository, 
+                                IReviewerRepository reviewersRepository, 
+                                IMapper mapper)
         {
             _reviewRepository = reviewRepository;
             _pokemonRepository = pokemonRepository;
-            _reviewersRepository = reviewersRepository;
+            _reviewerRepository = reviewersRepository;
             _mapper = mapper;
         }
 
@@ -75,7 +78,7 @@ namespace PokemonReviewApp.Controllers
 
             var reviewMap = _mapper.Map<Review>(reviewCreate);
 
-            reviewMap.Reviewer = _reviewersRepository.GetReviewer(reviewerId);
+            reviewMap.Reviewer = _reviewerRepository.GetReviewer(reviewerId);
             reviewMap.Pokemon = _pokemonRepository.GetPokemon(pokemonId);
 
             if (!_reviewRepository.CreateReview(reviewMap))
@@ -88,5 +91,61 @@ namespace PokemonReviewApp.Controllers
             return Ok("Successfully Created");
         }
 
+
+        [HttpPut("{reviewId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCountry(int reviewId, [FromBody] ReviewDto reviewUpdate)
+        {
+            if (reviewUpdate == null)
+                return BadRequest(ModelState);
+
+            //not a good practice just following example tutorial
+            if (reviewId != reviewUpdate.Id)
+                return BadRequest(ModelState);
+
+            if (!_reviewRepository.ReviewExists(reviewId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var reviewMap = _mapper.Map<Review>(reviewUpdate);
+
+            if (!_reviewRepository.UpdateReview(reviewMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
+
+        [HttpDelete("{reviewId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteReview(int reviewId)
+        {
+            if (!_reviewRepository.ReviewExists(reviewId))
+                return NotFound();
+
+            var reviewToDelete = _reviewRepository.GetReview(reviewId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_reviewRepository.DeleteReview(reviewToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }
